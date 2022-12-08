@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import numpy as np
 from posturas import *
 from modelo import *
@@ -57,6 +56,8 @@ def main():
         energia_ini = int(input())
         print('Teclee el placer inicial')
         placer_ini = int(input())
+        print(f'Tecle los {len(posturas)} valores de la funcion objetivo')
+        fo = [int(x) for x in input().split(' ')]
         for i in posturas:
             print(f'Teclee cuanto placer da la postura {i.nombre}')
             i.placer = int(input()) 
@@ -67,8 +68,8 @@ def main():
               a- TodosVivos
               b- TodosOrgasmo''')  
         listRestricciones = input().split(' ')
-        resultado = EjecutarModelo(minimizar, criterio, umbral_org, energia_ini, placer_ini, listRestricciones)
-
+        resultado = EjecutarModelo(minimizar, criterio, umbral_org, energia_ini, placer_ini, listRestricciones, fo)
+        print(resultado)
 # def main():
 #     s = read_script(minimizar, umbral_org, energia_ini)
 #     restr = crearRestricciones(s[3])
