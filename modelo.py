@@ -8,18 +8,7 @@ def EjecutarModelo(minimizar, criterio, umbral_org, energia_ini, placer_ini, lis
     agotamiento_posturas = [x.agotamiento for x in posturas]
     restricciones = CrearRestricciones(listRestricciones, placer_posturas, agotamiento_posturas)
     resultado = Modelo(minimizar, energia_ini, umbral_org, restricciones, fo, placer_ini)
-    
-    fig, ax = plt.subplots()
-    #temperaturas = {'Placer':placer, 'Cansancio':cansancio}
-    #ax.plot(placer_posturas, resultado.x, label = 'Placer')
-    p = [x.nombre for x in posturas]
-    plt.bar(p, resultado.x)
-    ax.legend(loc = 'best')
-    plt.show()
-    #ax.plot(p, resultado.x, label = 'Placer')
-    #ax.legend(loc = 'best')
-    #plt.show()
-    
+
     return resultado
 
 def CrearRestricciones(listRestricciones, placer_posturas, agotamiento_posturas):
