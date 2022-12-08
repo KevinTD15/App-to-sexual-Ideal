@@ -69,7 +69,14 @@ def main():
               b- TodosOrgasmo''')  
         listRestricciones = input().split(' ')
         resultado = EjecutarModelo(minimizar, criterio, umbral_org, energia_ini, placer_ini, listRestricciones, fo)
-        print(resultado)
+        
+        for i in range(len(resultado.x)):
+            print(f'El tiempo que hay que dedicarle a la postura {posturas[i].nombre} es {resultado.x[i]}')
+        fig, ax = plt.subplots()
+        p = [x.nombre for x in posturas]
+        plt.bar(p, resultado.x)
+        ax.legend(loc = 'best')
+        plt.show()
 # def main():
 #     s = read_script(minimizar, umbral_org, energia_ini)
 #     restr = crearRestricciones(s[3])
