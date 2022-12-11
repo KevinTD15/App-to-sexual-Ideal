@@ -3,24 +3,24 @@ from restricciones import *
 import scipy.optimize as sp
 import matplotlib.pyplot as plt
 
-def EjecutarModelo(minimizar, criterio, umbral_org, energia_ini, placer_ini, listRestricciones, fo):
-    placer_posturas = [x.placer for x in posturas]
-    agotamiento_posturas = [x.agotamiento for x in posturas]
+def EjecutarModelo(app, posturas, listRestricciones, fo):
+    placer_posturas = [int(x.placer) for x in posturas]
+    agotamiento_posturas = [int(x.agotamiento) for x in posturas]
     restricciones = CrearRestricciones(listRestricciones, placer_posturas, agotamiento_posturas)
-    resultado = Modelo(minimizar, energia_ini, umbral_org, restricciones, fo, placer_ini)
+    resultado = Modelo(app.minimizar.get(), app.energia_ini.get(), app.umbral_org.get(), restricciones, fo, app.placer_ini.get(), len(placer_posturas))
 
     return resultado
 
 def CrearRestricciones(listRestricciones, placer_posturas, agotamiento_posturas):
     restr = []
     for i in listRestricciones:
-        if i == 'a':
+        if i == 'TodosVivos':
             restr.append((agotamiento_posturas, 0))
-        elif i == 'b':
+        elif i == 'TodosOrgasmo':
             restr.append((placer_posturas, 1))
     return restr
 
-def Modelo(minimizar, ei, uo, restr, crit, pi):
+def Modelo(minimizar, ei, uo, restr, crit, pi, cant_post):
     list = []
     for i in restr:
         if i[1] == 1:
@@ -42,11 +42,14 @@ def Modelo(minimizar, ei, uo, restr, crit, pi):
 
     b_ub = [ei, pi + uo]
     
-    bounds1 = (1, None)
-    bounds2 = (1, None)
-    bounds3 = (1, None)
-    bounds4 = (1, None)
-    bounds5 = (1, None)
+    boundss = []
+    for i in range(cant_post):
+        boundss.append((0, None))
+    # bounds1 = (0, None)
+    # bounds2 = (0, None)
+    # bounds3 = (0, None)
+    # bounds4 = (0, None)
+    # bounds5 = (0, None)
     
 
-    return sp.linprog(c=fo, A_ub = a_ub_1, b_ub = b_ub , bounds=[bounds1, bounds2, bounds3, bounds4, bounds5])
+    return sp.linprog(c=fo, A_ub = a_ub_1, b_ub = b_ub , bounds=boundss)
