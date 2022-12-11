@@ -1,5 +1,4 @@
 from posturas import *
-from restricciones import *
 import scipy.optimize as sp
 import matplotlib.pyplot as plt
 
@@ -30,10 +29,7 @@ def Modelo(minimizar, ei, uo, restr, crit, pi, cant_post):
             list.append(i[0])
 
     a_ub_1 = list
-    #a_ub_1.append([0, -1, 0])
-    #a_ub_1.append([-1, 0, 0])
-    #a_ub_1.append([0, 0, -1])
-
+    
     fo = []
     if(minimizar == True):
         fo = [int(item) for item in crit]
@@ -45,11 +41,5 @@ def Modelo(minimizar, ei, uo, restr, crit, pi, cant_post):
     boundss = []
     for i in range(cant_post):
         boundss.append((0, None))
-    # bounds1 = (0, None)
-    # bounds2 = (0, None)
-    # bounds3 = (0, None)
-    # bounds4 = (0, None)
-    # bounds5 = (0, None)
-    
 
     return sp.linprog(c=fo, A_ub = a_ub_1, b_ub = b_ub , bounds=boundss)
