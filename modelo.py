@@ -1,34 +1,42 @@
 from posturas import *
 import scipy.optimize as sp
-import matplotlib.pyplot as plt
 
-def EjecutarModelo(app, posturas, listRestricciones, fo):
-    placer_posturas = [int(x.placer) for x in posturas]
-    agotamiento_posturas = [int(x.agotamiento) for x in posturas]
-    restricciones = CrearRestricciones(listRestricciones, placer_posturas, agotamiento_posturas)
-    resultado = Modelo(app.minimizar.get(), app.energia_ini.get(), app.umbral_org.get(), restricciones, fo, app.placer_ini.get(), len(placer_posturas))
+def EjecutarModelo(app, listPersonasPosturas, listRestricciones, fo):
+    restricciones = CrearRestricciones(listRestricciones, listPersonasPosturas)
+    resultado = Modelo(app.minimizar.get(), restricciones, fo, len(listPersonasPosturas[0].posturas))
 
     return resultado
 
-def CrearRestricciones(listRestricciones, placer_posturas, agotamiento_posturas):
+def CrearRestricciones(listRestricciones, listPersonasPosturas):
     restr = []
     for i in listRestricciones:
-        if i == 'TodosVivos':
-            restr.append((agotamiento_posturas, 0))
-        elif i == 'TodosOrgasmo':
-            restr.append((placer_posturas, 1))
+        for p in listPersonasPosturas: 
+            restr1 = []
+            restr2 = []
+            for j in p.posturas:   
+                if i == 'TodosVivos':
+                    restr1.append(int(j.agotamiento))
+                    if(j == p.posturas[len(p.posturas) - 1]):
+                        restr.append((restr1, int(p.energiaInicial), 0))
+                elif i == 'TodosOrgasmo':
+                    restr2.append(int(j.placer))
+                    if(j == p.posturas[len(p.posturas) - 1]):
+                        restr.append((restr2, int(p.placerInicial), int(p.umbralOrgasmo), 1))
     return restr
 
-def Modelo(minimizar, ei, uo, restr, crit, pi, cant_post):
-    list = []
+def Modelo(minimizar, restr, crit, cant_post):
+    a_ub_1 = []
+    b_ub = []
+    
     for i in restr:
-        if i[1] == 1:
-            list.append( [(-1 * item) for item in i[0]])
-            uo = -1 * uo
+        if i[len(i) - 1] == 0:
+            a_ub_1.append( [(-1 * item) for item in i[0]])
+            b_ub.append(i[1] - i[2])
         else:
-            list.append(i[0])
+            a_ub_1.append(i[0])
+            b_ub.append(i[1])
+            
 
-    a_ub_1 = list
     
     fo = []
     if(minimizar == True):
@@ -36,8 +44,6 @@ def Modelo(minimizar, ei, uo, restr, crit, pi, cant_post):
     else:
         fo = [(-1 *int(item)) for item in crit]
 
-    b_ub = [ei, pi + uo]
-    
     boundss = []
     for i in range(cant_post):
         boundss.append((0, None))
