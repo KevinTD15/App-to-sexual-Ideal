@@ -30,11 +30,11 @@ def Modelo(minimizar, restr, crit, cant_post):
     
     for i in restr:
         if i[len(i) - 1] == 0:
-            a_ub_1.append( [(-1 * item) for item in i[0]])
-            b_ub.append(i[1] - i[2])
-        else:
             a_ub_1.append(i[0])
             b_ub.append(i[1])
+        else:
+            a_ub_1.append( [(-1 * item) for item in i[0]])
+            b_ub.append(i[1] - i[2])
             
 
     
