@@ -19,7 +19,7 @@ class Raiz():
 
         #Label(text="Proyecto Final de PMA  2022\n\n Kevin Talavera Díaz C-311",bg="lightblue",fg="black",font=("arial",12),border=10,justify=CENTER).place(x=220,y=450)
         Label (text="Ingrese los siguientes datos",bg="lightblue",fg="black",font=("arial",12)).place(x=20,y=20)
-        Button (text='Cargar de Fichero',font=("arial",9),width=15,height=1,command=self.cargarFichero).place(x=250,y=20) 
+        Button (text='Cargar Archivo',font=("arial",9),width=15,height=1,command=self.cargarFichero).place(x=250,y=20) 
         self.canvas = None
         self.vr = None
         self.boton = None 
@@ -53,7 +53,6 @@ class Raiz():
             self.vp.geometry("430x600"+"+"+str(420)+"+"+str(0)) 
             self.vp.resizable(1,1)
             self.vp.config(bg="lightblue", bd=12, relief="sunken")
-            vscrollbar = Scrollbar(self.vp, orient=VERTICAL)
         else:
             self.canvasPosturas.destroy()
             self.canvasDatosPersona.destroy()
@@ -192,7 +191,7 @@ class Raiz():
 
     def modelo(self):
             listPersonasPosturas, listRestricciones, fo = self.prepararDatos()
-            if self.minimizar.get()==0 or len(listRestricciones)==0 or self.personas.get() not in (2,3,4):
+            if self.minimizar.get()==0 or len(listRestricciones)==0 or self.personas.get() not in (1,2,3,4):
                 MessageBox.showerror("Error!",'Faltan datos o están incorrectos')
             else:
                 resultado = EjecutarModelo(self, listPersonasPosturas, listRestricciones, fo)
@@ -236,7 +235,9 @@ class Raiz():
             listaresultado.insert(END ,'RESULTADO INSATISFACIBLE')
         else:
             for i in range(len(resultado.x)):
-                listaresultado.insert(END ,f'El tiempo que hay que dedicarle a la postura {self.posturas[i][0].get()} es {round(resultado.x[i],3)}')
+                a = self.posturas[i+1][0].get()
+                b = round(resultado.x[i],3)
+                listaresultado.insert(END ,f'El tiempo que hay que dedicarle a la postura {a} es {b}')
         Button (self.ventana,text='Reiniciar',font=("arial",10),width=10,height=1,command=self.reiniciar).place(x=130,y=430)      
 
     def muestraError(self,i):
@@ -244,7 +245,6 @@ class Raiz():
 
 
     def cargarFichero(self):
-        self.cargarFichero=True
         file = FileDialog.askopenfilename(title='Abrir fichero con los datos', initialdir="C:",filetypes=[("Fichero de texto","*.txt")] )
         if not os.path.isfile(file):
                 MessageBox.showerror("Error!",'Archivo no existe')  
@@ -252,70 +252,66 @@ class Raiz():
         txt = open(file,'r')
         text = txt.read()
         l =text.split('\n')
-        for i in l:
-            valores = i.split(',')
+        for i in range(4):
+            valores = l[i].split(',')
 
             if len(valores)==0: 
                 self.muestraError(i)  
                 return
-            if len(valores)<2:  
+            if len(valores)<1:  
                 self.muestraError(i)
                 return
-            if valores[0]=='1':     #desea   
-                self.minimizar.set(value=valores[1])
-            elif valores[0]=='2':   #restricciones  
-                if valores[1]=='1':    
+            if i==0:     #desea   
+                self.minimizar.set(value=valores[0])
+            elif i==1:   #restricciones  
+                if valores[0]=='1':    
                     self.TodosVivos.set(value=1) 
                 else: 
                     self.TodosVivos.set(value=0) 
-                if len(valores)!=3: 
+                if len(valores)!=2: 
                     self.muestraError(i )   
                     return
-                if valores[2]=='1':    
+                if valores[1]=='1':    
                     self.TodosOrgasmo.set(value=1)
                 else:   
                     self.TodosOrgasmo.set(value=0)
-            elif valores[0]=='3':
-                if len(valores)>2: #escribieron sus propias posturas
-                    self.nombreP = valores[2:]
+            elif i==2:
+                if len(valores)>1: #escribieron sus propias posturas
+                    self.nombreP = valores[1:]
                 else:
                     self.nombreP = self.nombrePini
-            elif valores[0]=='4':   #criterio
-                if valores[1]=='1': self.criterio.set(value='1') 
+            elif i==3:   #criterio
+                if valores[0]=='1': self.criterio.set(value='1') 
                 else:   
                     self.muestraError(i)
-                    return
-            elif valores[0]=='5': 
-                break            
+                    return        
 
-        linea = 4+len(self.nombreP)
-        valores = l[linea].split(',')  #ctd de personas
-        if len(valores)!=2:
+        valores = l[5].split(',')  #ctd de personas
+        if len(valores)!=1:
             self.muestraError(i)
             return
-        self.personas.set(value=valores[1])
+        self.personas.set(value=valores[0])
         
         self.creaTablas()
-        nfo=0
-        for i in range(4,linea):   #poble FO
-            valores = l[i].split(',')
-            if len(valores)!=2:
-                self.muestraError(i)
-                return
-            self.datosFO[nfo][1] = Entry(self.frameFO, width=8, textvariable=IntVar(value=valores[1]),justify=CENTER)
-            self.datosFO[nfo][1].grid(row=nfo+1,column=1,sticky='news')
-            nfo += 1
+        valores = l[4].split(',')
+        if len(valores)!=len(self.nombreP):
+            self.muestraError(4)
+            return
+        for i in range(0,len(self.nombreP)):   #poble FO
+            self.datosFO[i][1] = Entry(self.frameFO, width=8, textvariable=IntVar(value=valores[i]),justify=CENTER)
+            self.datosFO[i][1].grid(row=i+1,column=1,sticky='news')
+
            
-        linea += 1 #saltar linea de ctd de personas que ya se leyo arriba
+        linea = 6 #saltar linea de ctd de personas que ya se leyo arriba
         ndp=0
         for i in range(linea,self.personas.get() + linea): #caract de personas
             valores = l[i].split(',')
-            if len(valores)!=5:
+            if len(valores)!=4:
                 self.muestraError(i)
                 return
             else:                    
                 for j in range(1,4): 
-                    self.datosPersona[ndp][j] = Entry(self.frameDatosPersona,width=8, textvariable=IntVar(value=valores[j+1]),justify=CENTER)
+                    self.datosPersona[ndp][j] = Entry(self.frameDatosPersona,width=8, textvariable=IntVar(value=valores[j]),justify=CENTER)
                     self.datosPersona[ndp][j].grid(row=ndp+1,column=j,sticky='news')
                 ndp += 1           
         rowI=1
@@ -323,13 +319,13 @@ class Raiz():
         for i in range(self.personas.get()): #posturas por persona
             for j in range(rowI,len(self.nombreP)+rowI):  
                 valores = l[linea].split(',')
-                if len(valores)!=4:
+                if len(valores)!=3:
                     self.muestraError(i)
                     return
                 else:            
-                    self.posturas[j][1] = Entry(self.framePosturas,width=8, textvariable=IntVar(value=valores[2]),justify=CENTER)
+                    self.posturas[j][1] = Entry(self.framePosturas,width=8, textvariable=IntVar(value=valores[1]),justify=CENTER)
                     self.posturas[j][1].grid(row=j+1,column=1,sticky='news')
-                    self.posturas[j][2] = Entry(self.framePosturas,width=13, textvariable=IntVar(value=valores[3]),justify=CENTER)
+                    self.posturas[j][2] = Entry(self.framePosturas,width=13, textvariable=IntVar(value=valores[2]),justify=CENTER)
                     self.posturas[j][2].grid(row=j+1,column=2,sticky='news')
                     linea += 1
             rowI += (len(self.nombreP)+1)
@@ -337,6 +333,8 @@ class Raiz():
         self.button.place(x=190,y=190) 
 
 def TiempoProgresivo(res):
+    if(res is None):
+        return 0
     result = [res[0]]
     sum_act = res[0]
     for i in range(len(res)-1):
@@ -347,6 +345,8 @@ def TiempoProgresivo(res):
         
 def muestraGrafica(listaPosturas, resultado):
         tiemo_progresivo = TiempoProgresivo(resultado.x)
+        if(type(tiemo_progresivo) == int):
+            return
         for i in range(len(listaPosturas)):
             fig, ax = plt.subplots()
             p = [int(x.placer) for x in listaPosturas[i].posturas]
