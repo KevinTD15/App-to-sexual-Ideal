@@ -341,7 +341,26 @@ def TiempoProgresivo(res):
         sum_act += res[i + 1]
         result.append(sum_act)
     return result
+
+def PlacerProgresivo(res, pi, tiempo):
+    if(res is None):
+        return 0
+    result = []
+    sum_act = pi
+    for i in range(len(res)):
+        sum_act += float(res[i].placer) * tiempo[i]
+        result.append(sum_act)
+    return result
         
+def AgotamientoProgresivo(res, tiempo):
+    if(res is None):
+        return 0
+    result = [float(res[0].agotamiento) * tiempo[0]]
+    sum_act = float(res[0].agotamiento) * tiempo[0]
+    for i in range(len(res)-1):
+        sum_act += float(res[i+1].agotamiento) * tiempo[i+1]
+        result.append(sum_act)
+    return result
         
 def muestraGrafica(listaPosturas, resultado):
         tiemo_progresivo = TiempoProgresivo(resultado.x)
@@ -349,8 +368,10 @@ def muestraGrafica(listaPosturas, resultado):
             return
         for i in range(len(listaPosturas)):
             fig, ax = plt.subplots()
-            p = [int(x.placer) for x in listaPosturas[i].posturas]
-            c = [int(x.agotamiento) for x in listaPosturas[i].posturas]
+            p = PlacerProgresivo(listaPosturas[i].posturas,  int(listaPosturas[i].placerInicial), tiemo_progresivo) #[int(x.placer) for x in listaPosturas[i].posturas]
+            c = AgotamientoProgresivo(listaPosturas[i].posturas, tiemo_progresivo)#[int(x.agotamiento) for x in listaPosturas[i].posturas]
+            umbral = [int(listaPosturas[i].umbralOrgasmo) for k in range(len(listaPosturas[i].posturas))]
+            energiaI = [int(listaPosturas[i].energiaInicial) for k in range(len(listaPosturas[i].posturas))]
             p.sort()
             c.sort()
             num_per = i + 1
@@ -358,7 +379,9 @@ def muestraGrafica(listaPosturas, resultado):
             plt.xlabel('tiempo')
             plt.ylabel('valores')
             plt.plot(tiemo_progresivo, p, label = 'Placer')
-            plt.plot(tiemo_progresivo, c, label = 'Agotamiento')
+            plt.plot(tiemo_progresivo, c, label = 'Agotamiento')      
+            plt.plot(tiemo_progresivo, umbral, linestyle= 'dashed',label= 'Umbral Orgasmo')
+            plt.plot(tiemo_progresivo, energiaI, linestyle= 'dashed',label= 'Energia Inicial')
             plt.legend(loc = 'best')
             plt.show()
 
